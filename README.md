@@ -37,10 +37,15 @@ Graphical interface for the command-line program `go-dispatch-proxy.exe` https:/
    ```
    python go_dispatch_proxy_gui.py
    ```
-4. To create a standalone executable:
+4. To create a standalone executable with pyinstaller:
    ```
    pyinstaller go-dispatch-proxy-gui.spec
    ```
+5. To create a standalone executable with Nuitka:
+   ```
+   nuitka --standalone --onefile --windows-console-mode=disable --enable-plugin=tk-inter --windows-icon-from-ico=icon.ico --mingw64 go-dispatch-proxy-gui.py
+   ```
+   
 
 ## Usage
 
