@@ -1,6 +1,9 @@
 # Go Dispatch Proxy (Unified) 🚀
 [![GitHub release](https://img.shields.io/github/v/release/gulp79/go-dispatch-proxy?include_prereleases)](https://github.com/gulp79/go-dispatch-proxy/releases/latest) ![Latest Downloads](https://img.shields.io/github/downloads/gulp79/go-dispatch-proxy/total)
 
+<img width="1280" height="764" alt="aaaaaa" src="https://github.com/user-attachments/assets/fb921e35-2ef7-48d1-8bee-e6a107bb5e36" />
+
+
 A high-performance, unified SOCKS5 proxy application written in Go and Fyne (for the GUI). This tool is designed to solve a common connectivity problem: **aggregating bandwidth from multiple independent network interfaces**, particularly mobile tethering connections, to achieve higher overall throughput.
 
 Ideal for users lacking high-speed fiber or ADSL connections who need to combine the speed of several 4G/5G phones for large downloads.
