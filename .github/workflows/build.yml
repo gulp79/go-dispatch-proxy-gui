@@ -1,104 +1,244 @@
-name: Build Python Application
+name: Build Go Dispatch GUI - Multi Platform
 
 on:
-  push:
-    branches: [ main, master, develop ]
-  pull_request:
-    branches: [ main, master ]
   workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
 
 jobs:
-  build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ['3.9']
-
+  # ========== WINDOWS BUILDS ==========
+  build-windows-amd64:
+    runs-on: ubuntu-latest
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-    
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ matrix.python-version }}
-    
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install pyinstaller
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      shell: bash
-    
-    - name: Build with PyInstaller
-      run: |
-        pyinstaller go-dispatch-proxy-gui.spec
-        # Debug: Stampa il contenuto della directory corrente e della directory dist se esiste
-        ls -la
-        if [ -d "dist" ]; then ls -la dist; fi
-      shell: bash
-    
-    # Usiamo una logica più sicura per gli archivi
-    - name: Archive Windows build
-      if: matrix.os == 'windows-latest'
-      run: |
-        # Crea una directory per gli archivi
-        mkdir -p artifacts
-        # Verifica se dist esiste e contiene file
-        if (Test-Path -Path "dist") {
-            if (Get-ChildItem -Path "dist" | Where-Object { !$_.PSIsContainer }) {
-                Compress-Archive -Path "dist/*" -DestinationPath "artifacts/go-dispatch-proxy-gui-windows.zip"
-            } else {
-                echo "dist directory is empty or contains only subdirectories"
-                dir dist
-                # Crea un file vuoto per non far fallire l'upload
-                New-Item -Path "artifacts/build-log.txt" -ItemType "file" -Value "Build resulted in empty dist directory"
-            }
-        } else {
-            echo "dist directory does not exist"
-            dir
-            # Crea un file vuoto per non far fallire l'upload
-            New-Item -Path "artifacts/build-log.txt" -ItemType "file" -Value "Build failed to create dist directory"
-        }
-      shell: pwsh
-        
-    - name: Archive Linux build
-      if: matrix.os == 'ubuntu-latest'
-      run: |
-        # Crea una directory per gli archivi
-        mkdir -p artifacts
-        # Verifica se dist esiste e contiene file
-        if [ -d "dist" ] && [ "$(ls -A dist)" ]; then
-            tar -czvf artifacts/go-dispatch-proxy-gui-linux.tar.gz -C dist .
-        else
-            echo "dist directory does not exist or is empty"
-            ls -la
-            # Crea un file vuoto per non far fallire l'upload
-            echo "Build failed to create proper dist directory" > artifacts/build-log.txt
-        fi
-      shell: bash
-        
-    - name: Archive macOS build
-      if: matrix.os == 'macos-latest'
-      run: |
-        # Crea una directory per gli archivi
-        mkdir -p artifacts
-        # Verifica se dist esiste e contiene file
-        if [ -d "dist" ] && [ "$(ls -A dist)" ]; then
-            ditto -c -k --keepParent dist artifacts/go-dispatch-proxy-gui-macos.zip
-        else
-            echo "dist directory does not exist or is empty"
-            ls -la
-            # Crea un file vuoto per non far fallire l'upload
-            echo "Build failed to create proper dist directory" > artifacts/build-log.txt
-        fi
-      shell: bash
-        
-    # Salviamo gli archivi o i log come artefatti
-    - name: Upload build archives
-      uses: actions/upload-pages-artifact@v3
-      with:
-        name: build-${{ matrix.os }}
-        path: artifacts/
+      - name: 📄 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: 🧹 Tidy Dependencies
+        run: go mod tidy
+
+      - name: 📦 Install Fyne Cross
+        run: go install github.com/fyne-io/fyne-cross@latest
+
+      - name: 🏗️ Build Windows AMD64
+        run: |
+          fyne-cross windows -arch=amd64 -app-id com.gulp79.dispatchproxy -output dispatch-proxy-gui.exe .
+
+      - name: 📤 Upload Windows AMD64
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-amd64
+          path: fyne-cross/bin/windows-amd64/dispatch-proxy-gui.exe
+          retention-days: 30
+
+  build-windows-386:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📄 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: 🧹 Tidy Dependencies
+        run: go mod tidy
+
+      - name: 📦 Install Fyne Cross
+        run: go install github.com/fyne-io/fyne-cross@latest
+
+      - name: 🏗️ Build Windows 386 (32-bit)
+        run: |
+          fyne-cross windows -arch=386 -app-id com.gulp79.dispatchproxy -output dispatch-proxy-gui.exe .
+
+      - name: 📤 Upload Windows 386
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-386
+          path: fyne-cross/bin/windows-386/dispatch-proxy-gui.exe
+          retention-days: 30
+
+  build-windows-arm64:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📄 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: 🧹 Tidy Dependencies
+        run: go mod tidy
+
+      - name: 📦 Install Fyne Cross
+        run: go install github.com/fyne-io/fyne-cross@latest
+
+      - name: 🏗️ Build Windows ARM64
+        run: |
+          fyne-cross windows -arch=arm64 -app-id com.gulp79.dispatchproxy -output dispatch-proxy-gui.exe .
+
+      - name: 📤 Upload Windows ARM64
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-arm64
+          path: fyne-cross/bin/windows-arm64/dispatch-proxy-gui.exe
+          retention-days: 30
+
+  # ========== LINUX BUILDS ==========
+  build-linux-amd64:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📄 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: 🧹 Tidy Dependencies
+        run: go mod tidy
+
+      - name: 📦 Install Fyne Cross
+        run: go install github.com/fyne-io/fyne-cross@latest
+
+      - name: 🏗️ Build Linux AMD64
+        run: |
+          fyne-cross linux -arch=amd64 -app-id com.gulp79.dispatchproxy -output dispatch-proxy-gui .
+
+      - name: 📤 Upload Linux AMD64
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-amd64
+          path: fyne-cross/bin/linux-amd64/dispatch-proxy-gui
+          retention-days: 30
+
+  build-linux-386:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📄 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: 🧹 Tidy Dependencies
+        run: go mod tidy
+
+      - name: 📦 Install Fyne Cross
+        run: go install github.com/fyne-io/fyne-cross@latest
+
+      - name: 🏗️ Build Linux 386
+        run: |
+          fyne-cross linux -arch=386 -app-id com.gulp79.dispatchproxy -output dispatch-proxy-gui .
+
+      - name: 📤 Upload Linux 386
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-386
+          path: fyne-cross/bin/linux-386/dispatch-proxy-gui
+          retention-days: 30
+
+  build-linux-arm64:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📄 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: 🧹 Tidy Dependencies
+        run: go mod tidy
+
+      - name: 📦 Install Fyne Cross
+        run: go install github.com/fyne-io/fyne-cross@latest
+
+      - name: 🏗️ Build Linux ARM64
+        run: |
+          fyne-cross linux -arch=arm64 -app-id com.gulp79.dispatchproxy -output dispatch-proxy-gui .
+
+      - name: 📤 Upload Linux ARM64
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-arm64
+          path: fyne-cross/bin/linux-arm64/dispatch-proxy-gui
+          retention-days: 30
+
+  build-linux-arm:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📄 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: 🧹 Tidy Dependencies
+        run: go mod tidy
+
+      - name: 📦 Install Fyne Cross
+        run: go install github.com/fyne-io/fyne-cross@latest
+
+      - name: 🏗️ Build Linux ARM (32-bit)
+        run: |
+          fyne-cross linux -arch=arm -app-id com.gulp79.dispatchproxy -output dispatch-proxy-gui .
+
+      - name: 📤 Upload Linux ARM
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-arm
+          path: fyne-cross/bin/linux-arm/dispatch-proxy-gui
+          retention-days: 30
+
+  # ========== RELEASE (opzionale) ==========
+  create-release:
+    needs: [
+      build-windows-amd64, build-windows-386, build-windows-arm64,
+      build-linux-amd64, build-linux-386, build-linux-arm64, build-linux-arm
+    ]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - name: 📥 Download All Artifacts
+        uses: actions/download-artifact@v4
+
+      - name: 📦 Create Zips
+        run: |
+          cd windows-amd64 && zip ../dispatch-proxy-windows-amd64.zip * && cd ..
+          cd windows-386 && zip ../dispatch-proxy-windows-386.zip * && cd ..
+          cd windows-arm64 && zip ../dispatch-proxy-windows-arm64.zip * && cd ..
+          cd linux-amd64 && tar -czf ../dispatch-proxy-linux-amd64.tar.gz * && cd ..
+          cd linux-386 && tar -czf ../dispatch-proxy-linux-386.tar.gz * && cd ..
+          cd linux-arm64 && tar -czf ../dispatch-proxy-linux-arm64.tar.gz * && cd ..
+          cd linux-arm && tar -czf ../dispatch-proxy-linux-arm.tar.gz * && cd ..
+
+      - name: 🚀 Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            dispatch-proxy-windows-amd64.zip
+            dispatch-proxy-windows-386.zip
+            dispatch-proxy-windows-arm64.zip
+            dispatch-proxy-linux-amd64.tar.gz
+            dispatch-proxy-linux-386.tar.gz
+            dispatch-proxy-linux-arm64.tar.gz
+            dispatch-proxy-linux-arm.tar.gz
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
