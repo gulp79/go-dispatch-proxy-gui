@@ -1,5 +1,5 @@
 # Go Dispatch Proxy (Unified) 🚀
-[![GitHub release](https://img.shields.io/github/v/release/gulp79/go-dispatch-proxy?include_prereleases)](https://github.com/gulp79/go-dispatch-proxy/releases/latest) ![Latest Downloads](https://img.shields.io/github/downloads/gulp79/go-dispatch-proxy/total)
+[![GitHub release](https://img.shields.io/github/v/release/gulp79/go-dispatch-proxy-gui?include_prereleases)](https://github.com/gulp79/go-dispatch-proxy-gui/releases/latest) ![Latest Downloads](https://img.shields.io/github/downloads/gulp79/go-dispatch-proxy-gui/total)
 
 <img width="1280" height="764" alt="aaaaaa" src="https://github.com/user-attachments/assets/fb921e35-2ef7-48d1-8bee-e6a107bb5e36" />
 
