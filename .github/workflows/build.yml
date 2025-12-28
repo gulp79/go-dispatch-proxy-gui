@@ -30,7 +30,7 @@ jobs:
           fyne-cross windows -arch=amd64 -app-id com.gulp79.dispatchproxy -output dispatch-proxy-gui.exe .
 
       - name: 📤 Upload Windows AMD64
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: windows-amd64
           path: fyne-cross/bin/windows-amd64/dispatch-proxy-gui.exe
@@ -58,7 +58,7 @@ jobs:
           fyne-cross windows -arch=386 -app-id com.gulp79.dispatchproxy -output dispatch-proxy-gui.exe .
 
       - name: 📤 Upload Windows 386
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: windows-386
           path: fyne-cross/bin/windows-386/dispatch-proxy-gui.exe
@@ -86,7 +86,7 @@ jobs:
           fyne-cross windows -arch=arm64 -app-id com.gulp79.dispatchproxy -output dispatch-proxy-gui.exe .
 
       - name: 📤 Upload Windows ARM64
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: windows-arm64
           path: fyne-cross/bin/windows-arm64/dispatch-proxy-gui.exe
@@ -115,7 +115,7 @@ jobs:
           fyne-cross linux -arch=amd64 -app-id com.gulp79.dispatchproxy -output dispatch-proxy-gui .
 
       - name: 📤 Upload Linux AMD64
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: linux-amd64
           path: fyne-cross/bin/linux-amd64/dispatch-proxy-gui
@@ -143,7 +143,7 @@ jobs:
           fyne-cross linux -arch=386 -app-id com.gulp79.dispatchproxy -output dispatch-proxy-gui .
 
       - name: 📤 Upload Linux 386
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: linux-386
           path: fyne-cross/bin/linux-386/dispatch-proxy-gui
@@ -171,7 +171,7 @@ jobs:
           fyne-cross linux -arch=arm64 -app-id com.gulp79.dispatchproxy -output dispatch-proxy-gui .
 
       - name: 📤 Upload Linux ARM64
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: linux-arm64
           path: fyne-cross/bin/linux-arm64/dispatch-proxy-gui
@@ -199,7 +199,7 @@ jobs:
           fyne-cross linux -arch=arm -app-id com.gulp79.dispatchproxy -output dispatch-proxy-gui .
 
       - name: 📤 Upload Linux ARM
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: linux-arm
           path: fyne-cross/bin/linux-arm/dispatch-proxy-gui
