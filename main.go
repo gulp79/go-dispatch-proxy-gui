@@ -17,7 +17,7 @@ import (
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 
-	gonet "github.com/shirou/gopsutil/v3/net"
+	gonet "github.com/shirou/gopsutil/v4/net"
 )
 
 var proxy ProxyServer
@@ -424,4 +424,5 @@ func getValidInterfaces() []nicInfo {
 	}
 	return res
 }
+
 
