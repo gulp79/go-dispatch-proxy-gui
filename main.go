@@ -181,17 +181,23 @@ func main() {
 		logBuffer = append(logBuffer, msg)
 
 		finalText := strings.Join(logBuffer, "\n")
-		logArea.SetText(finalText)
-		logArea.CursorRow = len(logBuffer) - 1
-		logArea.Refresh()
+		
+		fyne.Do(func() {
+			logArea.SetText(finalText)
+			logArea.CursorRow = len(logBuffer) - 1
+			logArea.Refresh()
+		})
 	}
 
 	// ✓ Pulsante Clear Logs
 	clearLogsBtn := widget.NewButton("Clear Logs", func() {
 		logMutex.Lock()
 		logBuffer = logBuffer[:0] // Reset buffer
-		logArea.SetText("")
 		logMutex.Unlock()
+		
+		fyne.Do(func() {
+			logArea.SetText("")
+		})
 	})
 	clearLogsBtn.Importance = widget.LowImportance
 
@@ -225,17 +231,25 @@ func main() {
 			row.PrevSent = stat.BytesSent
 			row.PrevRecv = stat.BytesRecv
 
-			row.UpLbl.SetText(fmt.Sprintf("%.2f", upRate))
-			row.DownLbl.SetText(fmt.Sprintf("%.2f", downRate))
-			row.Graph.AddValue(downRate + upRate)
+			upText := fmt.Sprintf("%.2f", upRate)
+			downText := fmt.Sprintf("%.2f", downRate)
+			totalRate := downRate + upRate
+			isChecked := row.Check.Checked
+			ip := row.IP
+			
+			fyne.Do(func() {
+				row.UpLbl.SetText(upText)
+				row.DownLbl.SetText(downText)
+				row.Graph.AddValue(totalRate)
 
-			if row.Check.Checked {
-				row.StatsNameLbl.TextStyle = fyne.TextStyle{Bold: true}
-				row.StatsNameLbl.SetText(fmt.Sprintf("▶ %s", row.IP))
-			} else {
-				row.StatsNameLbl.TextStyle = fyne.TextStyle{Bold: false}
-				row.StatsNameLbl.SetText(fmt.Sprintf("%s", row.IP))
-			}
+				if isChecked {
+					row.StatsNameLbl.TextStyle = fyne.TextStyle{Bold: true}
+					row.StatsNameLbl.SetText(fmt.Sprintf("▶ %s", ip))
+				} else {
+					row.StatsNameLbl.TextStyle = fyne.TextStyle{Bold: false}
+					row.StatsNameLbl.SetText(fmt.Sprintf("%s", ip))
+				}
+			})
 		}
 	}
 
@@ -293,7 +307,9 @@ func main() {
 			err = proxy.Start(hostEntry.Text, port, tunnelCheck.Checked, selected, logger)
 			if err != nil {
 				logger(fmt.Sprintf("[ERROR] %v", err))
-				statusLabel.SetText("🔴 Proxy: Error")
+				fyne.Do(func() {
+					statusLabel.SetText("🔴 Proxy: Error")
+				})
 			}
 		}()
 		

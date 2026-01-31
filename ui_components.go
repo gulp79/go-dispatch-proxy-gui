@@ -58,7 +58,9 @@ func (r *graphRenderer) Layout(s fyne.Size) {}
 
 func (r *graphRenderer) Refresh() {
 	if r.bg != nil {
-		r.bg.Refresh()
+		fyne.Do(func() {
+			r.bg.Refresh()
+		})
 	}
 }
 
