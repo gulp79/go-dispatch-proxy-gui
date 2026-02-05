@@ -215,7 +215,7 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/')
     steps:
       - name: 📥 Download All Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
 
       - name: 📦 Create Zips
         run: |
