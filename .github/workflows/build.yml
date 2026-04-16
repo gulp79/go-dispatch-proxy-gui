@@ -228,7 +228,7 @@ jobs:
           cd linux-arm && tar -czf ../dispatch-proxy-linux-arm.tar.gz * && cd ..
 
       - name: 🚀 Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: |
             dispatch-proxy-windows-amd64.zip
