@@ -57,18 +57,18 @@ func main() {
 	portEntry := widget.NewEntry()
 	portEntry.SetText("8080")
 	tunnelCheck := widget.NewCheck("Tunnel Mode", nil)
-	
+
 	// ✓ Quiet Mode: attivo di default per ridurre carico CPU/RAM
 	quietCheck := widget.NewCheck("Quiet Mode (hide DEBUG logs)", nil)
 	quietCheck.Checked = true
-	
+
 	// ✓ Enable Logs: permette di disabilitare completamente i log
 	enableLogCheck := widget.NewCheck("Enable Logs", nil)
 	enableLogCheck.Checked = true
 
 	nicContainer := container.NewVBox()
 	statsContainer := container.NewVBox()
-	
+
 	var nicRows = make(map[string]*NICRow)
 	var nicMutex sync.RWMutex
 
@@ -113,10 +113,10 @@ func main() {
 			// --- Componenti Statistiche (Destra) ---
 			sName := widget.NewLabel(fmt.Sprintf("%s (%s)", nic.ip, nic.name))
 			sName.Truncation = fyne.TextTruncateEllipsis
-			
+
 			sUp := widget.NewLabel("0.00")
 			sUp.Alignment = fyne.TextAlignTrailing
-			
+
 			sDown := widget.NewLabel("0.00")
 			sDown.Alignment = fyne.TextAlignTrailing
 
@@ -142,7 +142,7 @@ func main() {
 			)
 			statsContainer.Add(statsRow)
 		}
-		
+
 		nicContainer.Refresh()
 		statsContainer.Refresh()
 	}
@@ -167,7 +167,7 @@ func main() {
 		if !enableLogCheck.Checked {
 			return
 		}
-		
+
 		logMutex.Lock()
 		defer logMutex.Unlock()
 
@@ -181,7 +181,7 @@ func main() {
 		logBuffer = append(logBuffer, msg)
 
 		finalText := strings.Join(logBuffer, "\n")
-		
+
 		fyne.Do(func() {
 			logArea.SetText(finalText)
 			logArea.CursorRow = len(logBuffer) - 1
@@ -194,7 +194,7 @@ func main() {
 		logMutex.Lock()
 		logBuffer = logBuffer[:0] // Reset buffer
 		logMutex.Unlock()
-		
+
 		fyne.Do(func() {
 			logArea.SetText("")
 		})
@@ -227,7 +227,7 @@ func main() {
 				upRate = float64(stat.BytesSent-row.PrevSent) * 8 / 1_000_000 / elapsed
 				downRate = float64(stat.BytesRecv-row.PrevRecv) * 8 / 1_000_000 / elapsed
 			}
-			
+
 			row.PrevSent = stat.BytesSent
 			row.PrevRecv = stat.BytesRecv
 
@@ -236,7 +236,7 @@ func main() {
 			totalRate := downRate + upRate
 			isChecked := row.Check.Checked
 			ip := row.IP
-			
+
 			fyne.Do(func() {
 				row.UpLbl.SetText(upText)
 				row.DownLbl.SetText(downText)
@@ -312,7 +312,7 @@ func main() {
 				})
 			}
 		}()
-		
+
 		startBtn.SetText("Stop Proxy")
 		startBtn.Importance = widget.HighImportance
 		statusLabel.SetText("▶ Proxy: Running")
@@ -329,7 +329,7 @@ func main() {
 	refreshNICs()
 
 	// --- Layout Principale ---
-	
+
 	// Settings in alto a sinistra
 	topSettings := container.NewVBox(
 		widget.NewLabelWithStyle("Settings", fyne.TextAlignLeading, fyne.TextStyle{Bold: true}),
@@ -337,6 +337,7 @@ func main() {
 			widget.NewFormItem("Host", hostEntry),
 			widget.NewFormItem("Port", portEntry),
 		),
+		widget.NewLabel("Protocols: HTTP, SOCKS5, SOCKS4/SOCKS4a"),
 		tunnelCheck,
 		quietCheck,
 		enableLogCheck, // ✓ Checkbox per disabilitare log
@@ -365,7 +366,7 @@ func main() {
 		widget.NewLabelWithStyle("Logs", fyne.TextAlignLeading, fyne.TextStyle{Bold: true}),
 		clearLogsBtn,
 	)
-	
+
 	rightPanel := container.NewVSplit(
 		container.NewBorder(logHeader, nil, nil, nil, logArea),
 		container.NewBorder(
@@ -440,5 +441,3 @@ func getValidInterfaces() []nicInfo {
 	}
 	return res
 }
-
-

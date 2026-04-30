@@ -98,7 +98,11 @@ func (s *ProxyServer) Start(lhost string, lport int, tunnelMode bool, backendsCo
 	s.running = true
 	s.stopChan = make(chan struct{})
 
-	s.log(fmt.Sprintf("[INFO] Server started on %s (Mode: Tunnel=%v)", bindAddr, tunnelMode))
+	if tunnelMode {
+		s.log(fmt.Sprintf("[INFO] Server started on %s (Mode: Tunnel)", bindAddr))
+	} else {
+		s.log(fmt.Sprintf("[INFO] Server started on %s (Protocols: HTTP, SOCKS5, SOCKS4/SOCKS4a)", bindAddr))
+	}
 
 	go s.acceptLoop(tunnelMode)
 	return nil
@@ -137,7 +141,7 @@ func (s *ProxyServer) acceptLoop(tunnel bool) {
 			if tunnel {
 				s.handleTunnel(c)
 			} else {
-				s.handleSocks(c)
+				s.handleProxy(c)
 			}
 		}(conn)
 	}

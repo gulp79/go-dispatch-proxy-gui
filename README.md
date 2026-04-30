@@ -1,90 +1,102 @@
-# Go Dispatch Proxy (Unified) 🚀
-[![GitHub release](https://img.shields.io/github/v/release/gulp79/go-dispatch-proxy-gui?include_prereleases)](https://github.com/gulp79/go-dispatch-proxy-gui/releases/latest)  ![Latest Downloads](https://img.shields.io/github/downloads/gulp79/go-dispatch-proxy-gui/total)
+# Go Dispatch Proxy GUI Enhanced
 
-A high-performance, unified SOCKS5 proxy application written in Go and Fyne (for the GUI). This tool is designed to solve a common connectivity problem: **aggregating bandwidth from multiple independent network interfaces**, particularly mobile tethering connections, to achieve higher overall throughput.
+Go Dispatch Proxy GUI Enhanced is a Go/Fyne desktop application for sharing outbound TCP connections across multiple network interfaces. It is useful when several mobile tethering links, Wi-Fi adapters, or other independent connections are available and a download manager can open many parallel connections.
 
-Ideal for users lacking high-speed fiber or ADSL connections who need to combine the speed of several 4G/5G phones for large downloads.
+The proxy listens on one local port and automatically accepts:
 
-Largely inspired and copied from the original repository https://github.com/extremecoders-re/go-dispatch-proxy
+- HTTP proxy requests, including `CONNECT` for HTTPS
+- SOCKS5
+- SOCKS4
+- SOCKS4a
+- Tunnel mode for forwarding all accepted connections to configured backend targets
 
-Thanks to extremecoders-re for the clear example and foundation of the code.
+## Features
 
-Gui preview:
+- One GUI application written in Go.
+- HTTP, SOCKS5, SOCKS4, and SOCKS4a on the same listening port.
+- Weighted round-robin dispatch across selected local interfaces.
+- Real-time upload/download statistics and small activity graphs per interface.
+- Interface filtering to hide common virtual adapters.
+- Optional quiet logs to reduce GUI overhead.
+- Linux AppImage build script for a mostly self-contained executable.
 
-<img width="1280" height="764" alt="aaaaaa" src="https://github.com/user-attachments/assets/fb921e35-2ef7-48d1-8bee-e6a107bb5e36" />
+## How It Works
 
----
+This is connection-level load balancing, not true MPTCP bonding. Each TCP connection is assigned to one selected outgoing interface. Tools that open many parallel connections, such as JDownloader, IDM, aria2, or some browser/download-manager combinations, can therefore use several links at once.
 
-## ✨ Features
+A single browser download often uses only one TCP connection, so that individual download may not combine all interfaces by itself. It can still run at the same time as a download manager using the same proxy port.
 
-* **Unified Application:** The proxy backend and the graphical user interface (GUI) are compiled into a **single, standalone executable**. No Python, no dependencies, just Go performance.
-* **Weighted Load Balancing (SOCKS5):** Distributes incoming TCP connections across multiple local IP addresses (your connected phones) using a customizable **Weighted Round Robin** algorithm.
-* **Real-time Statistics:** Visual feedback on the bandwidth usage of each connected interface, including mini-graphs, to monitor performance and identify bottlenecks.
-* **Network Filtering:** Automatically filters out virtual interfaces (like VirtualBox, VMware, Loopback, etc.) to keep the selection list clean and focused on actual internet sources.
-* **High Performance:** Built entirely in Go for low CPU usage, minimal memory footprint, and high concurrency, crucial for managing hundreds of parallel connections from modern download managers.
-* **Cross-Platform:** Tested and built for Windows, macOS, and Linux (requires OS-specific network stack support for binding).
+## Quick Start
 
----
+1. Connect the network devices you want to use.
+2. Run the application.
+3. Click `Refresh Interfaces`.
+4. Select one or more interfaces.
+5. Adjust each interface weight if needed.
+6. Click `Start Proxy`.
+7. Configure your browser or download manager to use the local proxy.
 
-## 💻 How It Works
+Default proxy settings:
 
-The proxy works on the principle of **Connection Load Balancing**, not true MPTCP bonding (which requires remote server support).
+- Host: `127.0.0.1`
+- Port: `8080`
+- Protocol: `HTTP`, `SOCKS5`, `SOCKS4`, or `SOCKS4a`
 
-1.  **Preparation:** Connect multiple mobile devices (via USB tethering or Wi-Fi hotspot) to your computer. Each device provides a unique IP address (e.g., `192.168.42.10`, `172.20.10.2`, etc.).
-2.  **Proxy Activation:** The **Go Dispatch Proxy** runs on your PC (e.g., `127.0.0.1:8080`).
-3.  **Download Manager:** You must use a multi-threaded download manager (like **JDownloader 2, IDM, or aria2**) and configure it to use the proxy.
-4.  **Aggregation:** When the Download Manager splits a large file into 30 chunks, the proxy distributes these 30 individual connections across your 3-4 available mobile connections, effectively summing their bandwidths.
+Different applications can use different protocols on the same host and port at the same time. The proxy detects the protocol independently for each incoming connection.
 
----
+## Run on Linux
 
-## ⚙️ Usage & Configuration
-
-### 1. Download and Run
-
-Download the latest executable from the [Releases page](LINK_TO_YOUR_RELEASES). No installation is required.
-
-### 2. Configure Interfaces
-
-1.  Connect your mobile phones and ensure they are visible as network interfaces (NICs) on your PC.
-2.  Start the `Go Dispatch Proxy` executable.
-3.  Click **"Refresh Interfaces"** to load the list of available connections.
-4.  Select the interfaces you wish to use by checking the boxes.
-5.  **Set Weight (Optional):** Use the slider next to each interface to set its weight (default is 1). An interface with weight **2** will receive twice as many connections as an interface with weight **1**. Use this to prioritize faster connections.
-6.  Click **"Start Proxy"**.
-
-### 3. Configure Download Manager
-
-Set your download manager or web browser to use the SOCKS5 proxy running on:
-
-* **Host:** `127.0.0.1`
-* **Port:** `8080` (or the port you configured in the app)
-* **Protocol:** **SOCKS5** (Crucial: not HTTP/HTTPS)
-
-**Ensure your download manager is configured to use the maximum number of parallel connections (e.g., 16-32) per file to achieve full aggregation.**
-
----
-
-## 🛠️ Building from Source
-
-This project uses Go with the Fyne toolkit for the GUI.
-
-### Prerequisites
-
-* [Go 1.21+](https://go.dev/dl/)
-
-### Build Steps
+Use the prebuilt AppImage from this repository:
 
 ```bash
-# Clone the repository
-git clone [YOUR_REPO_URL]
-cd [REPO_NAME]
+chmod +x build/Go_Dispatch_Proxy_GUI-x86_64.AppImage
+./build/Go_Dispatch_Proxy_GUI-x86_64.AppImage
+```
 
-# Fetch Fyne dependencies
+The AppImage bundles the application and the X11 libraries needed by Fyne/GLFW. It still requires a normal Linux graphical session and system OpenGL/graphics drivers.
+
+## Build From Source
+
+Requirements:
+
+- Go 1.24+ or the toolchain from `go.mod`
+- A C compiler
+- Fyne/GLFW development dependencies for native builds
+
+Run directly:
+
+```bash
 go mod tidy
+go run .
+```
 
-# Build the unified executable for your system
-# The output file will be in the 'dist' folder.
-go install fyne.io/fyne/v2/cmd/fyne@latest
-fyne package -os windows/amd64 -icon icon.png -name "Go Dispatch Proxy"
-# or simply:
-go build -ldflags="-s -w" -o dist/dispatch-proxy.exe .
+Build a native binary:
+
+```bash
+go build -ldflags="-s -w" -o dist/dispatch-proxy-gui .
+```
+
+## Build AppImage
+
+The AppImage build script downloads the required Ubuntu X11 development packages into a local `build/sysroot` directory. It does not install system packages with `sudo`.
+
+```bash
+./scripts/build-appimage.sh
+```
+
+Output:
+
+```bash
+build/Go_Dispatch_Proxy_GUI-x86_64.AppImage
+```
+
+## Notes
+
+- AppImage packaging currently targets `x86_64` Linux.
+- On Linux, interface binding uses `BindToDevice` when an interface name can be resolved.
+- On Windows and macOS, the app binds by local IP address where supported by the OS network stack.
+- No proxy authentication is implemented.
+
+## Credits
+
+This project is inspired by the original `go-dispatch-proxy` work by `extremecoders-re` and the GUI fork this enhanced version was based on.

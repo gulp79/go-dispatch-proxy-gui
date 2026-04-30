@@ -1,0 +1,14 @@
+# Build outputs
+dist/
+*.exe
+*.out
+
+# AppImage build cache and intermediate files
+build/*
+!build/Go_Dispatch_Proxy_GUI-x86_64.AppImage
+
+# Local/editor files
+.idea/
+.vscode/
+*.swp
+*~
