@@ -6,7 +6,7 @@ toolchain go1.25.6
 
 require (
 	fyne.io/fyne/v2 v2.7.3
-	github.com/shirou/gopsutil/v4 v4.26.3
+	github.com/shirou/gopsutil/v4 v4.26.4
 )
 
 require (
