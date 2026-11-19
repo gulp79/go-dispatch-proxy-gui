@@ -2,5 +2,5 @@
 Icon = "icon.png"
 Name = "Go Dispatch Proxy Gui"
 ID = "com.gulp79.dispatchproxy"
-Version = "2.0.3"
-Build = 3
+Version = "2.0.4"
+Build = 4
